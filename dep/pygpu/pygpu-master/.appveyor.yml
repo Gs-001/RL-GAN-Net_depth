@@ -1,0 +1,58 @@
+version: '1.0.{build}'  # This number doesn't matter
+
+pull_requests:
+  do_not_increment_build_number: true
+
+platform:
+  - x64
+
+image: Visual Studio 2015
+
+clone_folder: C:\projects\libgpuarray
+
+configuration:
+  - Release
+
+environment:
+  BINSTAR_TOKEN:
+    secure: 58KqJcKtfCBVCuIzpnkLm4XZLQqKq95Hs8Ly20HWaMSla67nusrp3y4sy6XzZOBQ
+
+  matrix:
+    - CONDA_LOC: "C:\\Miniconda-x64"
+      PATCH_VS2008: "1"
+    - CONDA_LOC: "C:\\Miniconda35-x64"
+      PATCH_VS2008: "0"
+    - CONDA_LOC: "C:\\Miniconda36-x64"
+      PATCH_VS2008: "0"
+
+install:
+  # This breaks conda-build because of git
+  - cmd: rmdir C:\cygwin /s /q
+  - cmd: call %CONDA_LOC%\Scripts\activate.bat
+  - cmd: set PYTHONUNBUFFERED=1
+  - cmd: conda install -n root --yes conda conda-env conda-build anaconda-client
+  # We borrow a trick from conda-forge to fix the VS2008 compiler
+  - ps: |
+      if($env:PATCH_VS2008 -eq '1') {
+        cmd /c "conda config --append channels conda-forge 2>&1"
+        cmd /c "conda install --yes vs2008_express_vc_python_patch 2>&1"
+        cmd /c "call setup_x64 2>&1"
+      }
+
+build: off
+
+test_script:
+  - cmd: for /f "tokens=*" %%i in ('python -c "import versioneer; print(versioneer.get_version())"') do set GPUARRAY_VERSION=%%i
+  - cmd: echo %GPUARRAY_VERSION%
+  - cmd: conda build conda
+  - cmd: mkdir pkgs
+  - cmd: xcopy "%CONDA_LOC%"\conda-bld\win-64\pygpu* pkgs\ /Y
+  - cmd: xcopy "%CONDA_LOC%"\conda-bld\win-64\libgpuarray* pkgs\ /Y
+  - ps: |
+      if($env:appveyor_repo_tag -eq 'True') {
+        cmd /c "anaconda -t $env:BINSTAR_TOKEN upload --user=mila-udem pkgs/* 2>&1"
+      }
+
+artifacts:
+  - path: pkgs/*
+    name: "Conda Packages"

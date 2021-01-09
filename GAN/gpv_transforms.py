@@ -24,8 +24,13 @@ class oneD2twoD(object):
     def __init__(self,img_size=32):
         self.img_size = img_size
     def __call__(self,inputs):
-
+        
+        # print("*** inputs_shape: ", np.shape(inputs))
+        # print("*** inputs: ", inputs)
+        # print("Bassi sucks")
+        # exit()
         inputs = np.reshape(inputs,(self.img_size,self.img_size))
+
 
         return inputs
 

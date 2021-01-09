@@ -5,6 +5,7 @@ from .listdataset import ListDataset
 from random import shuffle
 
 def make_dataset(input_dir,split,net_name,target_dir=None):
+    # print("make_dataset: ", locals())
     plyfiles = []
     if(net_name== 'GAN'):
         for dirs in os.listdir(input_dir):
@@ -29,7 +30,7 @@ def make_dataset(input_dir,split,net_name,target_dir=None):
                 plyinput = plytarget
                 plyfiles.append([[plyinput],[plytarget]])
 
-    if (net_name == 'shape_completion'): # TODO remove this sometime
+    if (net_name == 'shape_completion'): # TODO remove this sometime ?
 
         for dirs in os.listdir(input_dir):
             temp_In_Dir = os.path.join(input_dir, dirs)
@@ -50,6 +51,10 @@ def make_dataset(input_dir,split,net_name,target_dir=None):
         return split2list(plyfiles, split, default_split=split)
 
 def shapenet(input_root, target_root, split, net_name='auto_encoder', co_transforms= None, input_transforms = None, target_transforms= None, args=None,give_name=False):
+
+    print("--------------------")
+
+    print("shapenet: ", locals())
 
     [train_list,valid_list] = make_dataset(input_root, split,net_name, target_root)
 

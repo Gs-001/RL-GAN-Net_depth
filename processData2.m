@@ -1,6 +1,6 @@
 
 
-org_root = 'shape_net_core_uniform_samples_2048';
+org_root = '/home/gurcharan/my_stuff/projects/major/RL-GAN-Net/shape_net_core_uniform_samples_2048';
 
 folder_list = dir(org_root);
 

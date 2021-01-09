@@ -66,11 +66,11 @@ parser.add_argument('--gamma',default=0.5,help='gamma for the learning rate sche
 parser.add_argument('--bias_decay',default=0,help='bias decay')
 
 # Loss Settings
-parser.add_argument('--gpu_id', type=int, default=1, help='gpu ids: e.g. 0, 1. -1 is no GPU')
+parser.add_argument('--gpu_id', type=int, default=0, help='gpu ids: e.g. 0, 1. -1 is no GPU')
 
 # Training Settings
 
-parser.add_argument('--epochs',default=400,help='Number of epochs to run')
+parser.add_argument('--epochs',default=1,help='Number of epochs to run')
 parser.add_argument('--start_epoch',default=0,help='Starting Epoch')
 
 # Visualizer Settings
@@ -175,6 +175,10 @@ def main():
                                                                           target_transforms=target_transforms,
                                                                           co_transforms=co_transforms)
    
+    print("Dataset Types: train - {}  valid - {}  test -  {}".format(type(train_dataset), type(test_dataset), type(valid_dataset)))
+
+    print("Dataset Shapes: train - {}  valid - {}  test -  {}".format(np.shape(train_dataset), np.shape(valid_dataset), np.shape(test_dataset)))
+
 
     train_loader = torch.utils.data.DataLoader(train_dataset,batch_size=args.batch_size,
                                                num_workers = args.workers,
@@ -242,7 +246,7 @@ def main():
     vis_Valida = []
     args.display_id = args.display_id + 10
 
-    for i in range(1,12):
+    for i in range(1,20):
 
         vis_Valida.append(Visualizer(args))
         args.display_id = args.display_id +10
@@ -347,7 +351,7 @@ def validation(valid_loader,model,epoch,args,chamfer,vis_Valid,vis_Valida,valid_
     model.eval()
     end = time.time()
     epoch_size = len(valid_loader)
-    j = 1;
+    j = 0
     for i,(input) in enumerate(valid_loader):
 
         with torch.no_grad():
@@ -380,6 +384,8 @@ def validation(valid_loader,model,epoch,args,chamfer,vis_Valid,vis_Valida,valid_
                 [('Validation Input_pc', trans_input_temp.detach().cpu().numpy()),
                  ('Validation Predicted_pc', pc_1_temp.detach().cpu().numpy())])
             #vis_Valid.display_current_results(visuals, epoch, i)
+            print("vis_Valida: ", len(vis_Valida))
+            print("j: ", j)
             vis_Valida[j].display_current_results(visuals, epoch, i)
             j += 1
 

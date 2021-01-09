@@ -1,0 +1,36 @@
+{% set version = environ.get('GPUARRAY_VERSION') %}
+
+package:
+  name: pygpu
+  version: {{ version }}
+
+source:
+  path: ../../
+
+build:
+  number: 0
+  detect_binary_files_with_prefix: False
+
+requirements:
+  build:
+    - python
+    - cython >=0.25
+    - numpy 1.11
+    - mako
+    - setuptools
+    - libgpuarray =={{ version }}
+
+  run:
+    - python
+    - {{ pin_compatible('numpy', '1.11') }}
+    - mako
+    - six
+    - libgpuarray =={{ version }}
+
+about:
+  home: http://github.com/Theano/libgpuarray
+  license: ISC
+  license_file: LICENSE
+  summary: 'Library to manipulate arrays on GPU'
+  doc_url: http://deeplearning.net/software/libgpuarray/
+  dev_url: http://github.com/Theano/libgpuarray

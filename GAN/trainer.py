@@ -80,9 +80,8 @@ class Trainer(object):
 
 
     def train(self):
-
         # Data iterator
-      #  data_iter = iter(self.data_loader)
+        # data_iter = iter(self.data_loader)
         train_iter = iter(self.train_loader) # TODO
 
        # step_per_epoch = len(self.data_loader)
@@ -96,8 +95,8 @@ class Trainer(object):
         fixed_z_np = np.arange(-self.args.max_action,self.args.max_action,(self.args.max_action*2)/50)#self.batchsize replace with 10
         fixed_z_n = tensor2var(torch.FloatTensor(fixed_z_np,))
         fixed_z = fixed_z_n.unsqueeze(1)
-       # fixed_z = tensor2var(torch.randn(self.batch_size, self.z_dim))
-    #    fixed_z = tensor2var(torch.)
+        # fixed_z = tensor2var(torch.randn(self.batch_size, self.z_dim))
+        #    fixed_z = tensor2var(torch.)
         # Start with trained model
         if self.pretrained_model:
             start = self.pretrained_model + 1
@@ -106,6 +105,9 @@ class Trainer(object):
 
         # Start time
         start_time = time.time()
+
+        print("train_loader type: ", type(train_iter))
+        print("train_loader length: ", len(train_iter))
         for step in range(start, self.total_step):
 
             # ================== Train D ================== #

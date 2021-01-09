@@ -13,7 +13,7 @@ np.random.seed(5)
 dataset_names = sorted(name for name in Datasets.__all__)
 model_names = sorted(name for name in models.__all__)
 
-def evaluate_policy(policy,valid_loader,env,args, eval_episodes=6,render = False):
+def evaluate_policy(policy,valid_loader,env,args, eval_episodes=1,render = False):
     avg_reward = 0.
     env.reset(epoch_size=len(valid_loader),figures=8) # reset the visdom and set number of figures
 

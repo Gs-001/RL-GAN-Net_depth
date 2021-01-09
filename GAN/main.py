@@ -41,8 +41,19 @@ def main(args):
         #   transforms.Normalize(mean=[0.5,0.5],std=[1,1])
     ])
 
+    co_transforms = None
 
     """----------------Data Loader-----------------------------------------------"""
+
+    # print("Datasets_dict: ", Datasets.__dict__)
+    print("args.data: ", args.dataName)
+    # print("Datasets_dataname: ", Datasets.__dict__['shapenet']("abcd", 23))
+
+
+    # [train_dataset, valid_dataset] = Datasets.__dict__['shapenet'](input_root=args.data,
+    #                                                                   split=args.split_value,
+    #                                                                   input_transforms=input_transforms,
+    #                                                                   co_transforms=co_transforms)
 
     [train_dataset, valid_dataset] = Datasets.__dict__[args.dataName](input_root=args.data,
                                                                       split=args.split_value,
@@ -53,11 +64,16 @@ def main(args):
                                                num_workers=args.num_workers,
                                                shuffle=True,
                                                pin_memory=True)
+
     valid_loader = torch.utils.data.DataLoader(valid_dataset,
                                                batch_size=args.batch_size,
                                                num_workers=args.num_workers,
                                                shuffle=False,
                                                pin_memory=True)
+
+    print("** train_dataset: ", len(train_dataset))
+    print("** train_loader: ", len(train_loader))
+    print("** valid_loader: ", len(valid_loader))
 
     """----------------------------------------------Model Settings--------------------------------------------------"""
 
@@ -85,7 +101,7 @@ def main(args):
     vis_Valida = []
     args.display_id = args.display_id + 10
 
-    for i in range(1, 12):
+    for i in range(1, 51):
         vis_Valida.append(Visualizer(args))
         args.display_id = args.display_id + 10
 

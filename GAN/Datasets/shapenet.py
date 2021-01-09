@@ -23,6 +23,8 @@ def make_dataset(input_dir,split):
 
 def shapenet(input_root, split, co_transforms= None, input_transforms = None,args=None,give_name=False):
 
+    print("****")
+
     [train_list,valid_list] = make_dataset(input_root, split)
 
     train_dataset = ListDataset(input_root,train_list,co_transforms, input_transforms,args,mode='train',give_name=give_name)

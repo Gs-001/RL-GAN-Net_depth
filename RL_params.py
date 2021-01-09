@@ -51,17 +51,16 @@ def get_parameters():
   #                      default='/home/sarmad/PycharmProjects/pointShapeComplete/ckpts/shapenet/08-08-20:41/ae_pointnet,Adam,200epochs,b24,lr0.001/model_best.pth.tar',
   #                      help='Use Pretrained Encoder and Decoder for training')
     parser.add_argument('--pretrained_enc_dec',
-                        default='/home/sarmad/PycharmProjects/pointShapeComplete/ckpts/shapenet/09-04-21:05/ae_pointnet,Adam,1000epochs,b50,lr0.0005/model_best.pth.tar',
+                        default='/home/gurcharan/my_stuff/projects/major/RL-GAN-Net/ckpts/shapenet/01-08-18:33/ae_pointnet,Adam,1epochs,b24,lr0.001/checkpoint.pth.tar',
                         help='Use Pretrained Model for Encoder and Decoder')
  #   parser.add_argument('--pretrained_enc_dec',
  #                       default='/home/sarmad/PycharmProjects/pointShapeComplete/ckpts/shapenet/09-12-21:00/ae_pointnet,Adam,1000epochs,b24,lr0.001/model_best.pth.tar',
  #                       help='Use Pretrained Model for testing or resuming training')
 
     parser.add_argument('--pretrained_G',
-                        default='/media/sarmad/hulk/self attention GAN backup/models/sagan_celeb_1dim/999810_G.pth', #997920 24570  /home/sarmad/Desktop/GANs/Self-Attention-GAN-master/models/sagan_celeb   /media/sarmad/hulk/self attention GAN backup/models/sagan_celeb_1dim/999810_G.pth
-                        help='Use Pretrained Generator')#/media/sarmad/hulk/self attention GAN backup/models/sagan_celeb_16 dim # /home/sarmad/Desktop/GANs/Self-Attention-GAN-master/models/sagan_celeb/999810_G.pth
+                        default='/home/gurcharan/my_stuff/projects/major/RL-GAN-Net/GAN/models/sagan_celeb/3320_G.pth', help='Use Pretrained Generator')#/media/sarmad/hulk/self attention GAN backup/models/sagan_celeb_16 dim # /home/sarmad/Desktop/GANs/Self-Attention-GAN-master/models/sagan_celeb/999810_G.pth
     parser.add_argument('--pretrained_D',
-                        default='/media/sarmad/hulk/self attention GAN backup/models/sagan_celeb_1dim/999810_D.pth',# 997920
+                        default='/home/gurcharan/my_stuff/projects/major/RL-GAN-Net/GAN/models/sagan_celeb/3320_D.pth',# 997920
                         help='Use Pretrained Discriminator')
     parser.add_argument('--pretrained_Actor',
                         default='/home/ymkim/ShapeCompletion/pointShapeComplete/pytorch_models/DDPG_RLGAN_actor.pth',  # 997920

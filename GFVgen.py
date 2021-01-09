@@ -32,7 +32,7 @@ parser.add_argument('--save_path',default='./GFV', help='Path to Data Set')
 parser.add_argument('--save',default= True,help= 'Save Models or not ?')#
 #parser.add_argument('--pretrained',default='/home/sarmad/PycharmProjects/pointShapeComplete/ckpts/shapenet/08-08-20:41/ae_pointnet,Adam,200epochs,b24,lr0.001/model_best.pth.tar',help= 'Use Pretrained Model for testing or resuming training') ## TODO
 #parser.add_argument('--pretrained',default='/home/sarmad/PycharmProjects/pointShapeComplete/ckpts/shapenet/09-04-21:05/ae_pointnet,Adam,1000epochs,b50,lr0.0005/model_best.pth.tar',help= 'Use Pretrained Model for testing or resuming training') ## TODO
-parser.add_argument('--pretrained',default='/media/sarmad/hulk/pointShapeComplete/ckpts/shapenet/01-15-14:42/ae_pointnet,Adam,400epochs,b24,lr0.001/model_best.pth.tar',help= 'Use Pretrained Model for testing or resuming training') ## TODO
+parser.add_argument('--pretrained',default='/home/gurcharan/my_stuff/projects/major/RL-GAN-Net/ckpts/shapenet/01-08-18:33/ae_pointnet,Adam,1epochs,b24,lr0.001/checkpoint.pth.tar',help= 'Use Pretrained Model for testing or resuming training') ## TODO
 
 
 # Arguments for Model Settings
@@ -73,7 +73,7 @@ parser.add_argument('--normalization', type=str, default='batch', help='normaliz
 
 
 # GPU settings
-parser.add_argument('--gpu_id', type=int, default=1, help='gpu ids: e.g. 0, 1. -1 is no GPU')
+parser.add_argument('--gpu_id', type=int, default=0, help='gpu ids: e.g. 0, 1. -1 is no GPU')
 
 
 
@@ -153,7 +153,7 @@ def main():
      vis_Valida = []
      args.display_id = args.display_id + 10
 
-     for i in range(1,12):
+     for i in range(1,245):
 
          vis_Valida.append(Visualizer(args))
          args.display_id = args.display_id +10
@@ -233,7 +233,7 @@ def test(train_loader,valid_loader,model_encoder,model_decoder,epoch,args,chamfe
         batch_time.update(time.time() - end)
         end = time.time()
 
-        if i % 8000 == 0:
+        if i % 200 == 0:
             print('Epoch: [{0}][{1}/{2}]\t Batch Time: {3} sec\t  Loss: {4}'.format(epoch, i,epoch_size, batch_time,loss))
             visuals = OrderedDict(
                 [('Validation Input_pc', trans_input_temp.detach().cpu().numpy()),
