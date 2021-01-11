@@ -174,10 +174,6 @@ def main():
                                                                           input_transforms=input_transforms,
                                                                           target_transforms=target_transforms,
                                                                           co_transforms=co_transforms)
-   
-    print("Dataset Types: train - {}  valid - {}  test -  {}".format(type(train_dataset), type(test_dataset), type(valid_dataset)))
-
-    print("Dataset Shapes: train - {}  valid - {}  test -  {}".format(np.shape(train_dataset), np.shape(valid_dataset), np.shape(test_dataset)))
 
 
     train_loader = torch.utils.data.DataLoader(train_dataset,batch_size=args.batch_size,
