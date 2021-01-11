@@ -124,3 +124,20 @@ widgetsnbextension==3.4.2
 # pip install faiss-cpu --no-cach
 # pip install -U numpy
 # sudo find . -name "*.pyc" -exec rm -f {} \
+# add shape_net_core_uniform_samples_2048 to the root directory of project
+# run the processData2.m script from matlab -> creating train and test splits
+# comment this out:     models/lossess.py:201:        # self.res.setTempMemoryFraction(0.1)
+# Start visdom server: python -m visdom.server -port 8102 (change port accordingly)
+# vis_valida in main in not of sufficient length
+# args.gpu_id is 1 by default
+# change AE checkpoint
+# visdom port in GFV_gen
+# Almost every script uses arguments --data --datatest --pretrained etc.
+
+
+# python main.py -d "/home/gurcharan/my_stuff/projects/major/RL-GAN-Net/GFV/shapenet/01-08-18:52/encoder_pointnet" --pretrained "/home/gurcharan/my_stuff/projects/major/RL-GAN-Net/ckpts/shapenet/01-08-18:33/ae_pointnet,Adam,1epochs,b24,lr0.001/checkpoint.pth.tar" --total_step 1000
+# Data argument for training gan is the directory of .npy files
+# Remove augmentation from GAN
+# Removed reshaping Augmentations from GAN
+# GAN:main.py get Vis_valida to range(0, 50)
+
