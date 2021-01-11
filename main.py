@@ -40,9 +40,9 @@ parser.add_argument('--test_only',default= False,help='Only Test the pre-trained
 
 # Arguments for Data Loader
 #Path to train dataset # TODO
-parser.add_argument('-d', '--data', metavar='DIR', default='', help='Path to Complete Point Cloud Data Set')
+parser.add_argument('-d', '--data', metavar='DIR', default='/home/gurcharan/my_stuff/projects/major/RL-GAN-Net_depth/basement_0001b/train', help='Path to Complete Point Cloud Data Set')
 #Path to test dataset # TODO
-parser.add_argument('-dw', '--datatest',  default='', help='Path to Complete Point Cloud Data Set')
+parser.add_argument('-dw', '--datatest',  default='/home/gurcharan/my_stuff/projects/major/RL-GAN-Net_depth/basement_0001b/test', help='Path to Complete Point Cloud Data Set')
 
 parser.add_argument('-n', '--dataName', metavar='Data Set Name', default='shapenet', choices= dataset_names)
 parser.add_argument('-ad', '--adddata', metavar='aDIR', default='', help='Additional path to dataset')
@@ -90,10 +90,10 @@ parser.add_argument('--normalization', type=str, default='batch', help='normaliz
 
 
 args = parser.parse_args()
-args.device = torch.device("cuda:%d" % (args.gpu_id) if torch.cuda.is_available() else "cpu") # for selecting device for chamfer loss
-#cuda.select_device
-torch.cuda.set_device(args.gpu_id)
-print('Using Tintan xp GPU : ',torch.cuda.current_device())
+# args.device = torch.device("cuda:%d" % (args.gpu_id) if torch.cuda.is_available() else "cpu") # for selecting device for chamfer loss
+# #cuda.select_device
+# torch.cuda.set_device(args.gpu_id)
+# print('Using Tintan xp GPU : ',torch.cuda.current_device())
 
 
 
@@ -160,6 +160,13 @@ def main():
 
 
     if(args.net_name=='auto_encoder'):
+        
+        # from Datasets_depth.depth_dataset import DepthDataset
+        # train_dataset = DepthDataset(args.data)
+        # valid_dataset = DepthDataset(args.data)
+        # test_dataset = DepthDataset(args.datatest)
+        
+
         [train_dataset, valid_dataset] = Datasets.__dict__[args.dataName](input_root=args.data,
                                                                           target_root= None,
                                                                           split= args.split_value,
@@ -174,10 +181,17 @@ def main():
                                                                           input_transforms=input_transforms,
                                                                           target_transforms=target_transforms,
                                                                           co_transforms=co_transforms)
-   
-    print("Dataset Types: train - {}  valid - {}  test -  {}".format(type(train_dataset), type(test_dataset), type(valid_dataset)))
 
-    print("Dataset Shapes: train - {}  valid - {}  test -  {}".format(np.shape(train_dataset), np.shape(valid_dataset), np.shape(test_dataset)))
+        print("***", train_dataset)
+        print("***", len(train_dataset))
+        print("***", train_dataset[0])
+
+
+    # print("Train Dataset: \n rgb: {}\n\n depth: {}".format(train_dataset[0][0], train_dataset[0][1]))
+    # print("Dataset Types: train - {}  test - {}  valid -  {}".format(type(train_dataset), type(test_dataset), type(valid_dataset)))
+
+
+    # print("Dataset Shapes: train - {}  valid - {}  test -  {}".format(np.shape(train_dataset), np.shape(valid_dataset), np.shape(test_dataset)))
 
 
     train_loader = torch.utils.data.DataLoader(train_dataset,batch_size=args.batch_size,
@@ -195,6 +209,11 @@ def main():
                                                shuffle=False,
                                                pin_memory=True)
 
+    # train_loader = torch.tensor(train_loader)
+
+    print("Data Loader Shapes: train - {}  valid - {}  test -  {}".format(type(train_loader), type(valid_loader), type(test_loader)))
+
+    # exit()
     """----------------------------------------------Model Settings--------------------------------------------------"""
 
 

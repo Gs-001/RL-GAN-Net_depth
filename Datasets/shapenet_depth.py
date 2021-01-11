@@ -17,37 +17,29 @@ def make_dataset(input_dir,split,net_name,target_dir=None):
                 plyfiles.append([plyinput])
 
 
-    if(net_name == "auto_encoder"):
-        rgb_path = os.path.join(input_dir, 'r-*')
-        depth_path = os.path.join(input_dir, 'd-*')
-
-        rgb_images = [os.path.basename(img_path) for img_path in glob.glob(rgb_path)]
-        depth_images = [os.path.basename(img_path) for img_path in glob.glob(depth_path)]
-        num_of_images = len(rgb_images) if len(rgb_images) <= len(depth_images) else len(depth_images)
-
-        train_dataset = [[rgb_images[i], depth_images[i]] for i in range(num_of_images)]
-
-        return train_dataset, train_dataset
-
-
-
-
     # if(net_name == 'auto_encoder'):
-    #     target_dir = input_dir
-    #     for dirs in os.listdir(target_dir):
-    #         # print(dirs)
-    #         tempDir = os.path.join(input_dir,dirs)
-    #         # print(tempDir)
-    #         for target in glob.iglob(os.path.join(tempDir,'*.ply')):
-    #             target = os.path.basename(target)
-    #             # print(target)
-    #             root_filename = target[:-4]
-    #             plytarget = dirs + '/' + root_filename + '.ply'
+    #     data_pair = []
+    #     for num in len(glob.glob(input_dir))/2:
+    #         rgb = 'r-' + num + '.ppm'
+    #         depth = 'd-' + num + '.pgm'
 
-    #             # print(plytarget)
-    #             # exit()
-    #             plyinput = plytarget
-    #             plyfiles.append([[plyinput],[plytarget]])
+    #         data_pair = [[rgb, depth]]
+
+            
+
+    if(net_name == 'auto_encoder'):
+        target_dir = input_dir
+        for dirs in os.listdir(target_dir):
+            print(dirs)
+            tempDir = os.path.join(input_dir,dirs)
+            print(tempDir)
+            for target in glob.iglob(os.path.join(tempDir,'*.ply')):
+                target = os.path.basename(target)
+                root_filename = target[:-4]
+                plytarget = dirs + '/' + root_filename + '.ply'
+
+                plyinput = plytarget
+                plyfiles.append([[plyinput],[plytarget]])
 
     if (net_name == 'shape_completion'): # TODO remove this sometime ?
 
@@ -71,17 +63,11 @@ def make_dataset(input_dir,split,net_name,target_dir=None):
 
 def shapenet(input_root, target_root, split, net_name='auto_encoder', co_transforms= None, input_transforms = None, target_transforms= None, args=None,give_name=False):
 
-    # print("--------------------") 
+    print("--------------------")
 
-    
-
-    # print("shapenet: ", locals())
+    print("shapenet: ", locals())
 
     [train_list,valid_list] = make_dataset(input_root, split,net_name, target_root)
-
-    # print(train_list)
-    # print("Dataset Type: \n{}".format(type(train_list[0])))
-    # print("Train Dataset: \n {}\n {}".format(train_list[0], train_list[1]))
 
     train_dataset = ListDataset(input_root,target_root,train_list,net_name, co_transforms, input_transforms, target_transforms,args,mode='train',give_name=give_name)
 

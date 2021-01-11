@@ -1,4 +1,7 @@
 import torch.utils.data as data
+from torchvision.datasets.folder import default_loader
+from PIL import Image
+import torch
 import os
 import os.path
 #from plyfile import PlyData, PlyElement
@@ -34,6 +37,9 @@ def npy_loader(dir,file_name):
     output = np.load(path)
     return output
 
+def image_loader(path):
+    return torch.Tensor(np.array(Image.open(path)))
+
 class ListDataset(data.Dataset):
 
     def __init__(self, input_root,target_root, path_list, net_name, co_transforms = None, input_transforms = None, target_transforms = None,args=None,mode=None,give_name = False):
@@ -49,7 +55,7 @@ class ListDataset(data.Dataset):
         if(self.net_name=='GAN'):
             self.loader = npy_loader
         else:
-            self.loader = load_ply
+            self.loader = image_loader
         self.input_transforms = input_transforms
         self.target_transforms = target_transforms
         self.co_transforms = co_transforms
@@ -59,33 +65,36 @@ class ListDataset(data.Dataset):
 
     def __getitem__(self,index):
         inputs_list,targets_list = self.path_list[index]
+        print("getting item: \n index: {} inputs_list: {}, targets_list: {}".format(index, inputs_list, targets_list))
 
-        input_name = inputs_list[0]
-        input_name = input_name[:-4]
+        # input_name = inputs_list[0]
+        # input_name = input_name[:-4]
 
-        target_name = targets_list[0]
-        target_name = target_name[:-4]
+        # target_name = targets_list[0]
+        # target_name = target_name[:-4]
 
-        inputs =  self.loader(self.input_root,inputs_list[0])
-        targets = self.loader(self.target_root,targets_list[0])
+        inputs =  self.loader(os.path.join(self.input_root, inputs_list))
+        targets = self.loader(os.path.join(self.target_root, targets_list))
 
-        if self.mode == 'train':
-            if self.co_transforms is not None:
-                if self.net_name=='GAN':                                           # No target transform on GFV
-                    inputs = self.co_transforms(inputs)
-                else:
-                    inputs,targets = self.co_transforms(inputs,targets)
+        # if self.mode == 'train':
+        #     if self.co_transforms is not None:
+        #         if self.net_name=='GAN':                                           # No target transform on GFV
+        #             inputs = self.co_transforms(inputs)
+        #         else:
+        #             inputs,targets = self.co_transforms(inputs,targets)
 
-        if self.input_transforms is not None:
-                inputs = self.input_transforms(inputs)
+        # if self.input_transforms is not None:
+        #         inputs = self.input_transforms(inputs)
 
         # if self.target_transforms is not None:
         #     targets = self.target_transforms(targets)
 
-        if(self.give_name==True):
-            return inputs, input_name
-        else:
-            return inputs
+        # if(self.give_name==True):
+        #     return inputs, input_name
+        # else:
+        #     return inputs
+
+        return inputs
 
     def __len__(self):
         return len(self.path_list)
