@@ -1,39 +1,44 @@
-# RL-Depth-Net
-This repository is a successor to the original CVPR 2019 Paper : [RL-GAN-Net: A Reinforcement Learning Agent Controlled GAN Network for Real-Time Point Cloud Shape Completion](https://arxiv.org/abs/1904.12304). 
-
-We propose a novel approach of replacing backpropogation of an Autoencoder by a Reinforcement Learning agent, for Monocular Depth Estimation from RGB Images.
+# Monocular Depth Estimation with Transfer Learning pretrained MobileNetV2
 
 
-### Prerequisites
+This project implements a deep learning neural network model to generate the depth image of a given image.
+Model is a U-net model with MobileNetV2 as the encoder, and model has utilized skip connection from encoder to decoder.
+Model generates a depth image of resolution 480x640 for input image of same size.
 
-* Python 3.6
-* Linux / Windows
-* Anaconda (optional)
-
-The packages for the project  are listed in requirements_conda.txt and requirements_pip.txt files. Only install the ones needed or you can clone the whole environment. 
+![Results](https://github.com/alinstein/Depth_estimation/blob/master/CombineGIF.gif)
 
 
-### Steps
+This project was implemented taking reference from the following paper: 
 
-1. Download depth data from [Link]()
-2. Process Depth Images to remove noise
-3. Train the MobileNetV2 model on depth data using trainMobileNetV2.ipynb
-4. Train RL by using pre-trained MobileNetV2 model, by running trainRL.py
-5. Test with new RGB images by running testRL.py
+[High Quality Monocular Depth Estimation via Transfer Learning (arXiv 2018)](https://arxiv.org/abs/1812.11941)
+**[Ibraheem Alhashim]** and **Peter Wonka**
 
-### Credits:
-1. https://github.com/sfujim/TD3
+## Getting Started
+
+##### Model is trained using the IPYTHON file "train_mobilenetv2.ipynb".
+
+* Download the dataset and give the location of dataset.
+* Change the following according to the needs: batch_size, epochs, lr (learning rate).
+Load the pretrained model if needed.
+ 
+##### IPYTHON file "test_img.ipynb" can be used to generate the depth image on pretrained model.
+
+* Give the location for the dictionary of images to be converted and load the pretrained model
+
+##### IPYTHON file "test_video.ipynb" can be used to generate the depth video on pretrained model.
+
+* Give the location for the dictionary of images to be converted and load the pretrained model.
+
+#### Implementation of the Depth estimation using Densenet model is in the folder "Densenet_depth_model".
 
 
+## Dataset 
+* [NYU Depth V2 (50K)](https://s3-eu-west-1.amazonaws.com/densedepth/nyu_data.zip) (4.1 GB): File is extraced while running the "train_mobilenetv2.ipynb".
 
-If you use this work for your projects, please take the time to cite the original CVPR paper:
+## Download the pretrained model 
+* [Mobilenet](https://drive.google.com/drive/folders/1rDvtiwUgYbhzk8ZPdQ176abv-u6SaZzI?usp=sharing) (55 MB). Pretrained model is trained on 2 NVIDIA GeForce GTX 1080 for 6 hours(6 epoches). 
 
-```
-@InProceedings{Sarmad_2019_CVPR,
-author = {Sarmad, Muhammad and Lee, Hyunjoo Jenny and Kim, Young Min},
-title = {RL-GAN-Net: A Reinforcement Learning Agent Controlled GAN Network for Real-Time Point Cloud Shape Completion},
-booktitle = {The IEEE Conference on Computer Vision and Pattern Recognition (CVPR)},
-month = {June},
-year = {2019}
-}
-```
+## Author
+
+Written by Alinstein Jose, University of Victoria.
+
