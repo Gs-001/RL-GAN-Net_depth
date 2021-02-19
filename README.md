@@ -1,44 +1,42 @@
-# Monocular Depth Estimation with Transfer Learning pretrained MobileNetV2
+# RL-Depth-Net
+This repository is a successor to the original CVPR 2019 Paper : [RL-GAN-Net: A Reinforcement Learning Agent Controlled GAN Network for Real-Time Point Cloud Shape Completion](https://arxiv.org/abs/1904.12304). 
+
+We propose a novel approach of replacing backpropogation of an Autoencoder by a Reinforcement Learning agent, for Monocular Depth Estimation from RGB Images.
 
 
-This project implements a deep learning neural network model to generate the depth image of a given image.
-Model is a U-net model with MobileNetV2 as the encoder, and model has utilized skip connection from encoder to decoder.
-Model generates a depth image of resolution 480x640 for input image of same size.
+### Prerequisites
 
-![Results](https://github.com/alinstein/Depth_estimation/blob/master/CombineGIF.gif)
+* Python 3.6
+* Linux / Windows
+* Anaconda (optional)
 
-
-This project was implemented taking reference from the following paper: 
-
-[High Quality Monocular Depth Estimation via Transfer Learning (arXiv 2018)](https://arxiv.org/abs/1812.11941)
-**[Ibraheem Alhashim]** and **Peter Wonka**
-
-## Getting Started
-
-##### Model is trained using the IPYTHON file "train_mobilenetv2.ipynb".
-
-* Download the dataset and give the location of dataset.
-* Change the following according to the needs: batch_size, epochs, lr (learning rate).
-Load the pretrained model if needed.
- 
-##### IPYTHON file "test_img.ipynb" can be used to generate the depth image on pretrained model.
-
-* Give the location for the dictionary of images to be converted and load the pretrained model
-
-##### IPYTHON file "test_video.ipynb" can be used to generate the depth video on pretrained model.
-
-* Give the location for the dictionary of images to be converted and load the pretrained model.
-
-#### Implementation of the Depth estimation using Densenet model is in the folder "Densenet_depth_model".
+The packages for the project  are listed in requirements_conda.txt and requirements_pip.txt files. Only install the ones needed or you can clone the whole environment. 
 
 
-## Dataset 
-* [NYU Depth V2 (50K)](https://s3-eu-west-1.amazonaws.com/densedepth/nyu_data.zip) (4.1 GB): File is extraced while running the "train_mobilenetv2.ipynb".
+### Steps
+* Visualize each training and testing step by using visdom.
 
-## Download the pretrained model 
-* [Mobilenet](https://drive.google.com/drive/folders/1rDvtiwUgYbhzk8ZPdQ176abv-u6SaZzI?usp=sharing) (55 MB). Pretrained model is trained on 2 NVIDIA GeForce GTX 1080 for 6 hours(6 epoches). 
+1. Download data from https://github.com/optas/latent_3d_points.
+2. Process Data with Processdata2.m to get incomplete point cloud
+3. Train the autoencoder using main.py and save the model
+4. Generate GFV  using pretrained AE using GFV.py and store data
+5. Train GAN on the generated GFV data by by going into the GAN folder (trainer.py) and save model
+6. Train RL by using pre-trained GAN and AE by running trainRL.py
+7. Test with Incomplete data by running testRL.py
 
-## Author
+### Credits:
+1. https://github.com/sfujim/TD3
 
-Written by Alinstein Jose, University of Victoria.
 
+
+If you use this work for your projects, please take the time to cite the original CVPR paper:
+
+```
+@InProceedings{Sarmad_2019_CVPR,
+author = {Sarmad, Muhammad and Lee, Hyunjoo Jenny and Kim, Young Min},
+title = {RL-GAN-Net: A Reinforcement Learning Agent Controlled GAN Network for Real-Time Point Cloud Shape Completion},
+booktitle = {The IEEE Conference on Computer Vision and Pattern Recognition (CVPR)},
+month = {June},
+year = {2019}
+}
+```
