@@ -14,15 +14,12 @@ The packages for the project  are listed in requirements_conda.txt and requireme
 
 
 ### Steps
-* Visualize each training and testing step by using visdom.
 
-1. Download data from https://github.com/optas/latent_3d_points.
-2. Process Data with Processdata2.m to get incomplete point cloud
-3. Train the autoencoder using main.py and save the model
-4. Generate GFV  using pretrained AE using GFV.py and store data
-5. Train GAN on the generated GFV data by by going into the GAN folder (trainer.py) and save model
-6. Train RL by using pre-trained GAN and AE by running trainRL.py
-7. Test with Incomplete data by running testRL.py
+1. Download depth data from [Link]()
+2. Process Depth Images to remove noise
+3. Train the MobileNetV2 model on depth data using trainMobileNetV2.ipynb
+4. Train RL by using pre-trained MobileNetV2 model, by running trainRL.py
+5. Test with new RGB images by running testRL.py
 
 ### Credits:
 1. https://github.com/sfujim/TD3
