@@ -33,7 +33,7 @@ Load the pretrained model if needed.
 
 
 ## Dataset 
-* [NYU Depth V2 (50K)](https://s3-eu-west-1.amazonaws.com/densedepth/nyu_data.zip) (4.1 GB): File is extraced while running the "train_mobilenetv2.ipynb".
+* [NYU Depth V2 (50K)](https://drive.google.com/drive/folders/1TzwfNA5JRFTPO-kHMU___kILmOEodoBo) (4.1 GB): File is extraced while running the "train_mobilenetv2.ipynb".
 
 ## Download the pretrained model 
 * [Mobilenet](https://drive.google.com/drive/folders/1rDvtiwUgYbhzk8ZPdQ176abv-u6SaZzI?usp=sharing) (55 MB). Pretrained model is trained on 2 NVIDIA GeForce GTX 1080 for 6 hours(6 epoches). 
