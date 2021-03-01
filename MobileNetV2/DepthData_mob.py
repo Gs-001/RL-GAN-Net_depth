@@ -2,12 +2,13 @@
 Created on Sun Dec 29 23:17:26 2019
 
 @author: alin
+@editors: Ankit, Gurcharan
 """
 
 # from torch.utils.data import Dataset, DataLoader
 from torch.utils.data import Dataset, DataLoader
 import os 
-from PIL import Image
+from PIL import Image, ImageOps
 import random
 import numpy as np
 import torch
@@ -23,29 +24,46 @@ def _is_numpy_image(img):
 
 class DepthDataset(Dataset):
     os = __import__('os')
-    def __init__(self, traincsv, root_dir, transform=None):
+    # rgb = "/home/cse/Documents/group_17/Test Images/combined/rgb/"
+    # depth = "/home/cse/Documents/group_17/Test Images/combined/depth_GH/"
+    # rgb_root = "/home/cse/Documents/group_17/RL-GAN-Net_depth/Depth_Dataset/train/rgb_100"
+    # depth_root = "/home/cse/Documents/group_17/RL-GAN-Net_depth/Depth_Dataset/train/depth_100"
+
+    def __init__(self, traincsv, root_dir = None, transform=None, 
+                        rgb_root = "/home/cse/Documents/group_17/Test Images/combined/rgb/", 
+                        depth_root = "/home/cse/Documents/group_17/Test Images/combined/depth_GH/"):
         self.traincsv = traincsv
         self.root_dir = root_dir
         self.transform = transform
+
+        self.rgb_root = rgb_root
+        self.depth_root = depth_root
 
     def __len__(self):
         return len(self.traincsv)
 
     def __getitem__(self, idx):
-        
+        from icecream import ic
         sample = self.traincsv[idx]
-        img_name = os.path.join(self.root_dir,sample[0])
+        # img_name = os.path.join(self.root_dir,sample[0])
+        img_name = os.path.join(self.rgb_root,sample[0])
+        # from icecream import ic
+        # ic(img_name)
         image = (Image.open(img_name))
-        depth_name = os.path.join(self.root_dir,sample[1])
+        # depth_name = os.path.join(self.root_dir,sample[1])
+        depth_name = os.path.join(self.depth_root,sample[1])
         depth =(Image.open(depth_name))
-#         depth = depth[..., np.newaxis]
+        # To remove RGB channels of Grayscale Image
+        depth = ImageOps.grayscale(depth)
+        # depth = depth[..., np.newaxis]
         sample1={'image': image, 'depth': depth}
 
-        if self.transform:  sample1 = self.transform({'image': image, 'depth': depth})
+        if self.transform: 
+            sample1 = self.transform({'image': image, 'depth': depth})
         return sample1
     
     
-    
+from icecream import ic
 class Augmentation(object):
     def __init__(self, probability):
         from itertools import permutations
@@ -56,6 +74,7 @@ class Augmentation(object):
     
     def __call__(self, sample):
         image, depth = sample['image'], sample['depth']
+        
 
         if not _is_pil_image(image):
             raise TypeError(
@@ -75,6 +94,7 @@ class Augmentation(object):
             image = np.asarray(image)
             image = Image.fromarray(image[...,list(self.indices[random.randint(0, len(self.indices) - 1)])])    
 
+
         return {'image': image, 'depth': depth}
     
 
@@ -85,11 +105,11 @@ class ToTensor(object):
 
     def __call__(self, sample):
         image, depth = sample['image'], sample['depth']
-        
-
         image = self.to_tensor(image)
 
-        depth = depth.resize((320, 240))
+        # ORIGINAL : depth = depth.resize((320, 240))
+        # HALF OF RGB
+        depth = depth.resize((np.shape(image)[2]//2, np.shape(image)[1]//2))
 
         if self.is_test:
             depth = self.to_tensor(depth).float() / 1000
