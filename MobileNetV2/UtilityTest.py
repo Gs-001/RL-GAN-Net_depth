@@ -44,7 +44,7 @@ class ToTensor(object):
     def __call__(self, sample):
         image= sample['image']
         
-        image = image.resize((640, 480))
+        # image = image.resize((640, 480))
         image = self.to_tensor(image)
 
         return {'image': image}
