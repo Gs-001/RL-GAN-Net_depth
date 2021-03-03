@@ -202,7 +202,7 @@ optimizer = torch.optim.Adam( model.parameters(), lr )
 # Start training...
 for epoch in range(epochs):
     # path='/workspace/'+str(epoch)+'.pth'        
-    path='/home/cse/Documents/group_17/RL-Net_depth/MobileNetV2/saved_models/' + str(epoch) + '.pth' 
+    path='/home/cse/Documents/group_17/RL-GAN-Net_depth/MobileNetV2/saved_models/' + str(epoch) + '.pth' 
     torch.save(model.state_dict(), path)
     batch_time = AverageMeter()
     losses = AverageMeter()
@@ -259,7 +259,7 @@ for epoch in range(epochs):
             #writer.add_scalar('Train/Loss', losses.val, niter)
 
             # path='/workspace/'+str(epoch)+'.pth'
-            path='/home/cse/Documents/group_17/RL-Net_depth/MobileNetV2/saved_models/'+str(epoch)+'.pth'
+            path='/home/cse/Documents/group_17/RL-GAN-Net_depth/MobileNetV2/saved_models/'+str(epoch)+'.pth'
             torch.save(model.state_dict(), path)    
         if i % 300 == 0:
             LogProgress(model, writer, test_loader, niter)

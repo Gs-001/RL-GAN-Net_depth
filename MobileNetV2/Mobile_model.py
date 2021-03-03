@@ -52,7 +52,6 @@ class Encoder(nn.Module):
 
     def forward(self, x):
         from icecream import ic
-        print("-----------------------------------------------------")
         features = [x]
 
         for k, v in self.original_model.features._modules.items():

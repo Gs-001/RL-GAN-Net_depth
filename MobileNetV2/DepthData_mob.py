@@ -1,10 +1,3 @@
-"""
-Created on Sun Dec 29 23:17:26 2019
-
-@author: alin
-@editors: Ankit, Gurcharan
-"""
-
 # from torch.utils.data import Dataset, DataLoader
 from torch.utils.data import Dataset, DataLoader
 import os 

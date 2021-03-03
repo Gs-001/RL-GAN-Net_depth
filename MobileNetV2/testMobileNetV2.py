@@ -20,9 +20,8 @@ from UtilityTest import DepthDataset
 from UtilityTest import ToTensor
 
 
-data = "/home/cse/Documents/group_17/RL-Net_depth/MobileNetV2/workspace/test_img/same"
-# pretrained_path = "/home/cse/Documents/group_17/RL-Net_depth/MobileNetV2/5.pth"
-pretrained_path = "/home/cse/Documents/group_17/RL-Net_depth/MobileNetV2/saved_models/99.pth"
+data = "/home/cse/Documents/group_17/RL-GAN-Net_depth/MobileNetV2/workspace/test_img/same"
+pretrained_path = "/home/cse/Documents/group_17/RL-GAN-Net_depth/MobileNetV2/saved_models/99.pth" 
 
 batchSize = 1
 
@@ -104,9 +103,9 @@ for i, sample_batched1  in enumerate (train_loader):
     # Saving the Images
 
     #plt.imsave('/home/cse/Documents/group_17/RL-Net_depth/MobileNetV2/workspace/generated_img/%d_depth.png' %i, depth_image) 
-    plt.imsave('/home/cse/Documents/group_17/RL-Net_depth/MobileNetV2/workspace/generated_img/%d_depth.png' %i, depth_image) 
+    plt.imsave('/home/cse/Documents/group_17/RL-GAN-Net_depth/MobileNetV2/workspace/generated_img/%d_depth.png' %i, depth_image) 
 
-    plt.imsave('/home/cse/Documents/group_17/RL-Net_depth/MobileNetV2/workspace/generated_img/%d_image.png' %i, rgb_image) 
+    plt.imsave('/home/cse/Documents/group_17/RL-GAN-Net_depth/MobileNetV2/workspace/generated_img/%d_image.png' %i, rgb_image) 
 
 
 print("\n Time taken to generate Depth Images: %s " % (time.time() - start_time))
