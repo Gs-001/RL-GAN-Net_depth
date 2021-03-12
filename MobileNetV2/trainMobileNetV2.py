@@ -41,12 +41,11 @@ batch_size=16
 
 # ## Read Train Dataset
 
-rgb_path = "/home/cse/Documents/group_17/Test Images/combined/rgb/"
-# rgb_path = "/home/cse/Documents/group_17/RL-GAN-Net_depth/Depth_Dataset/train/rgb_100"
+rgb_path = "/home/cse/Documents/group_17/toBeDeleted/Depth_Dataset/train/rgb_100"
+# rgb_path = "/home/cse/Documents/group_17/Test Images/combined/rgb/"
 # rgb_path = "/home/cse/Documents/group_17/Test Images/720pTest/rgb/_resized/"
-
-depth_path = "/home/cse/Documents/group_17/Test Images/combined/depth_GH/"
-# depth_path = "/home/cse/Documents/group_17/RL-GAN-Net_depth/Depth_Dataset/train/depth_100"
+depth_path = "/home/cse/Documents/group_17/toBeDeleted/Depth_Dataset/train/depth_100/"
+# depth_path = "/home/cse/Documents/group_17/Test Images/combined/depth_GH/"
 # depth_path = "/home/cse/Documents/group_17/Test Images/720pTest/depth_GH/"
 
 def prepare_dataset():
@@ -215,13 +214,18 @@ for epoch in range(epochs):
     ic("Running New Epoch...", epoch)
     for i, sample_batched in enumerate(train_loader):
         optimizer.zero_grad()
-
+        ic("---")
+        ic(type(sample_batched['depth']), sample_batched['depth'].shape)
+        
         #Prepare sample and target
         image = torch.autograd.Variable(sample_batched['image'].cuda())
         depth = torch.autograd.Variable(sample_batched['depth'].cuda(non_blocking=True))
 
         # Normalize depth
+        ic("---")
+        ic(type(depth), depth.shape)
         depth_n = DepthNorm( depth )
+        ic(type(depth_n), depth_n.shape)
 
         ic(np.shape(image))        
         # Predict
@@ -229,11 +233,13 @@ for epoch in range(epochs):
         ic(np.shape (output))
 
         # Compute the loss
+        ic(type(output), type(depth_n))
+        ic(output.shape, depth_n.shape)
+
         l_depth = l1_criterion(output, depth_n)
         l_ssim = torch.clamp((1 - ssim(output, depth_n, val_range = 1000.0 / 10.0)) * 0.5, 0, 1)
 
         loss = (1.0 * l_ssim.mean().item()) + (0.1 * l_depth)
-
         # Update step
        
         losses.update(loss.data.item(), image.size(0))

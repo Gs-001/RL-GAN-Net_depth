@@ -51,3 +51,8 @@ depth                                                                           
   - Test the trained AE
   - check trained trainRL_depth.py
 
+# 7 Mar
+  - Since the state is currently encoder_out i.e. a 20 element list - Float Error
+  - Replaced State in forward by encoder_out[-1].cpu().data.numpy().ravel(), as well as in agent_input
+  - Now both state and action have the shape of 2611200
+

@@ -3,6 +3,8 @@
 
 from RL_params import *
 
+import kornia
+
 # import tensorflow as tf
 import tensorflow
 from glob import glob
@@ -17,6 +19,9 @@ import tensorflow as tf
 
 from icecream import ic
 
+import cv2
+import matplotlib.pyplot as plt
+
 np.random.seed(5)
 # torch.manual_seed(5)
 
@@ -24,36 +29,49 @@ dataset_names = sorted(name for name in Datasets.__all__)
 model_names = sorted(name for name in models.__all__)
 
 
-max_reward = -10000000000
-min_reward = 10000000000
-
 def evaluate_policy(policy,valid_loader,env,args, eval_episodes=6,render = False):
+
+    print("\n#################################################################")
+    print("Validation Phase starting...")
+    print("#################################################################\n")
+
     avg_reward = 0.
     env.reset(epoch_size=len(valid_loader),figures=8) # reset the visdom and set number of figures
 
     # for i,(input) in enumerate(valid_loader):
     for i in range (0,eval_episodes):
         try:
-            input = next(dataloader_iterator)
-            input = tf.convert_to_tensor(input)
+            imagePair = next(dataloader_iterator)
+            # imagePair = torch.from_numpy(imagePair)
+
             #input = torch.from_numpy(input)
         except:
             dataloader_iterator = iter(valid_loader)
-            input = next(dataloader_iterator)
-            input = tf.convert_to_tensor(input)
+            imagePair = next(dataloader_iterator)
+            # imagePair = torch.from_numpy(imagePair)
             #input = torch.from_numpy(input)
 
         # data_iter = iter(valid_loader)
         # input = data_iter.next()
         # action_rand = torch.randn(args.batch_size, args.z_dim)
-        obs = env.agent_input(input[0]) # env(input, action_rand)
+        
+        obs = env.agent_input(imagePair[0]) # env(input, action_rand)
         done = False
 
         while not done:
           # Action By Agent and collect reward
-            action = policy.select_action(np.array(obs))
-            action= torch.tensor(action).cuda().unsqueeze(dim=0)
-            new_state, _, reward, done, _ = env( input, action,render=render,disp =True)
+            action = policy.select_action(obs)
+            # ic(type(action))
+            # ic(np.shape(action))
+            action = torch.tensor(action).cuda().unsqueeze(dim=0)
+            # ic(type(action))
+            # ic(np.shape(action))
+
+            new_state, _, reward, done, _,pred_depth = env( imagePair, action,render=render,disp =True)
+            #pred_depth = pred_depth.numpy()
+            pred_depth = torch.reshape(pred_depth, (pred_depth.shape[3],pred_depth.shape[2])).numpy()##
+            cv2.resize(pred_depth, (1280,720), interpolation = cv2.INTER_AREA)
+            ic(pred_depth.shape)
             avg_reward += reward
 
         if i+1 >= eval_episodes:
@@ -61,35 +79,42 @@ def evaluate_policy(policy,valid_loader,env,args, eval_episodes=6,render = False
 
     avg_reward /= eval_episodes
 
-    print("---------------------------------------")
+    plt.imsave('/home/cse/Documents/group_17/pred_depth/pred_depth.png', pred_depth)
+
+    print("\n####################################################")
     print("Evaluation over %d episodes: %f" % (eval_episodes, avg_reward))
-    print("---------------------------------------")
+    print("######################################################\n")
 
     return avg_reward
 
 def test_policy(policy,valid_loader,env,args, eval_episodes=12,render = True):
+
+    print("\n#################################################################")
+    print("Policy Testing Phase starting...")
+    print("#################################################################\n")
+
     avg_reward = 0.
     env.reset(epoch_size=len(valid_loader),figures=12) # reset the visdom and set number of figures
 
     #for i,(input) in enumerate(valid_loader):
     for i in range (0,eval_episodes):
         try:
-            input = next(dataloader_iterator)
+            imagePair = next(dataloader_iterator)
         except:
             dataloader_iterator = iter(valid_loader)
-            input = next(dataloader_iterator)
+            imagePair = next(dataloader_iterator)
 
        # data_iter = iter(valid_loader)
        # input = data_iter.next()
         #action_rand = torch.randn(args.batch_size, args.z_dim)
-        obs =env.agent_input(input[0])# env(input, action_rand)
+        obs = env.agent_input(imagePair[0])# env(input, action_rand)
         done = False
 
         while not done:
           # Action By Agent and collect reward
             action = policy.select_action(np.array(obs))
             action= torch.tensor(action).cuda().unsqueeze(dim=0)
-            new_state, _, reward, done, _ = env( input, action,render=render,disp =True)
+            new_state, _, reward, done, _,_ = env( imagePair, action,render=render,disp =True)
             avg_reward += reward
 
         if i+1 >= eval_episodes:
@@ -97,18 +122,24 @@ def test_policy(policy,valid_loader,env,args, eval_episodes=12,render = True):
 
     avg_reward /= eval_episodes
 
-    print("---------------------------------------")
+    print("\n####################################################")
     print("Evaluation over %d episodes: %f" % (eval_episodes, avg_reward))
-    print("---------------------------------------")
+    print("######################################################\n")
 
     return avg_reward
 
-def readImages(folder_path):
+def readImages(folder_path, imtype='d'):
     images = []
     for i in range(len(folder_path)):
-        img = load_img(folder_path[i], target_size=(224, 224, 3))
-        # img = Image.open(folder_path[i])
+        img = load_img(folder_path[i])
         img = np.array(img, dtype=np.float32)
+
+        if imtype == 'r':
+            img = cv2.resize(img, (640,480), interpolation = cv2.INTER_AREA)
+        # TODO remove below break
+        if i ==100:
+            break
+
         images.append(img)
     
     images = np.array(images)
@@ -117,18 +148,18 @@ def readImages(folder_path):
 def main(args):
     #
     """ Transforms/ Data Augmentation Tec """
-    co_transforms = pc_transforms.Compose([])
+    # co_transforms = pc_transforms.Compose([])
 
-    input_transforms = transforms.Compose([
-        pc_transforms.ArrayToTensor()
-    ])
+    # input_transforms = transforms.Compose([
+    #     pc_transforms.ArrayToTensor()
+    # ])
 
-    target_transforms = transforms.Compose([
-        pc_transforms.ArrayToTensor()
-    ])
+    # target_transforms = transforms.Compose([
+    #     pc_transforms.ArrayToTensor()
+    # ])
 
 
-    """-----------------------------------------------Data Loader----------------------------------------------------"""
+    """##################------------Data Loader##################-----------------"""
 
     def merge_loader(rgb, depth):
         combined = []
@@ -137,35 +168,51 @@ def main(args):
 
         return combined
 
-    if (args.net_name == 'auto_encoder'):
+    train_path = glob("/home/cse/Documents/group_17/Test Images/combined/rgb/*")
+    depth_path = glob("/home/cse/Documents/group_17/Test Images/combined/depth_GH/*")
 
-        train_path = glob("/home/cse/Documents/group_17/NYU_Depth_V2/basements/train/rgb/*")
-        depth_path = glob("/home/cse/Documents/group_17/NYU_Depth_V2/basements/train/depth_jpg/*")
+    print("\n Loading Dataset...")
+    start_time = time.time()
 
-        rgb_images = readImages(train_path)
-        depth_images = readImages(depth_path)
-        train_loader = merge_loader(rgb_images, depth_images)
-        valid_loader = train_loader
-        test_loader = train_loader
+    rgb_images = readImages(train_path, 'r')
+    depth_images = readImages(depth_path)
+    train_loader = merge_loader(rgb_images, depth_images)
+    valid_loader = train_loader
+    test_loader = train_loader
 
-    """----------------Model Settings-----------------------------------------------"""
+    print(" Time taken to load dataset: %s" % (time.time() - start_time))
 
-    print('Encoder Model: {0}, Decoder Model : {1}'.format(args.model_encoder,args.model_decoder))
+    """----------------Model Settings##################------------"""
 
-    pretrained_AE = load_model(os.path.join(os.path.dirname(__file__), "AE", 'trainedAutoencoder'))
-    model_encoder = load_model(os.path.join(os.path.dirname(__file__),"AE", 'trainedEncoder'))
-    model_decoder = load_model(os.path.join(os.path.dirname(__file__), "AE", 'trainedDecoderr'))
+    pretrained_AE = torch.load("/home/cse/Documents/group_17/OG_RL-Net_depth/MobileNetV2/saved_models/99.pth")
 
-    """----------------Error Metrics-----------------------------------------------"""
-    nll = NLL()
-    mse = MSE(reduction = 'elementwise_mean')
+    # ### Importing the Model
+
+    from MobileNetV2.Mobile_model import Model
+    model = Model().cuda()
+    model = nn.DataParallel(model)
+
+    # Import the Pre-trained Model
+
+    model.load_state_dict(pretrained_AE)
+    print("\n Loaded MobileNet U-Net Weights successfully\n")
+
+    model.eval()
+    
+    model_encoder = model.module.encoder
+    model_decoder = model.module.decoder
+
+    ic("Successfully loaded Encoder, Decoder")
+    
+    """----------------Error Metrics##################------------"""
     norm = Norm(dims=args.z_dim)
     epoch = 0
-
-    test_loss = trainRL(train_loader, valid_loader, test_loader, model_encoder, model_decoder, epoch, args, nll, mse, norm)
+    
+    test_loss = trainRL(train_loader, valid_loader, test_loader, model_encoder, model_decoder, epoch, args, norm)
     print('Average Loss :{}'.format(test_loss))
 
-def trainRL(train_loader, valid_loader, test_loader, model_encoder, model_decoder, epoch, args, nll, mse, norm):
+def trainRL(train_loader, valid_loader, test_loader, model_encoder, model_decoder, epoch, args, norm):
+    ic(epoch)
     epoch_size = len(valid_loader)
 
     file_name = "%s_%s" % (args.policy_name, args.env_name)
@@ -176,7 +223,9 @@ def trainRL(train_loader, valid_loader, test_loader, model_encoder, model_decode
     env = envs(args, model_encoder, model_decoder, epoch_size)
 
     state_dim = args.state_dim
+    # ic(state_dim)
     action_dim = args.z_dim
+    # ic(action_dim)
     max_action = args.max_action
 
     # Initialize policy
@@ -190,38 +239,41 @@ def trainRL(train_loader, valid_loader, test_loader, model_encoder, model_decode
     replay_buffer = utils.ReplayBuffer()
     # evaluations = [evaluate_policy(policy,valid_loader,env,args)]
     evaluations = [evaluate_policy(policy, valid_loader,env,args, render=False)]
-
-    print("$$$ BRUCE IS BATMAN ----------------------------")
+    ic.enable()
 
     total_timesteps = 0
     timesteps_since_eval = 0
     episode_num = 0
     done = True
     env.reset(epoch_size=len(train_loader))
+    ic.enable()
 
     while total_timesteps < args.max_timesteps:
         if done:
             try:
+                dataloader_iterator = iter(train_loader)
                 input = next(dataloader_iterator)
-                input = tf.convert_to_tensor(input)  
             except:
                 dataloader_iterator = iter(train_loader)
                 input = next(dataloader_iterator)
-                input = tf.convert_to_tensor(input)
 
             if total_timesteps != 0:
                 # print("Total T: %d Episode Num: %d Episode T: %d Reward: %f") % (total_timesteps, episode_num, episode_timesteps, episode_reward)
                 if args.policy_name == "TD3":
+                    ic("TD3")
                     policy.train(replay_buffer, episode_timesteps, args.batch_size, args.discount, args.tau,
                                  args.policy_noise, args.noise_clip, args.policy_freq)
                 else:
+                    # ic("else")
                     policy.train(replay_buffer, episode_timesteps, args.batch_size, args.discount, args.tau)
+            
+            
 
             # Evaluate episode
             if timesteps_since_eval >= args.eval_freq:
                 timesteps_since_eval %= args.eval_freq
 
-                evaluations.append(evaluate_policy(policy,valid_loader,env,args,render = False))
+                # evaluations.append(evaluate_policy(policy,valid_loader,env,args,render = False))
 
                 if args.save_models: policy.save(file_name, directory="./pytorch_models_test")
 
@@ -229,7 +281,6 @@ def trainRL(train_loader, valid_loader, test_loader, model_encoder, model_decode
                 test_policy(policy, test_loader, env, args, render=True)
 
                 env.reset(epoch_size=len(train_loader))
-
 
             # Reset environment
             # obs = env.reset()
@@ -255,15 +306,25 @@ def trainRL(train_loader, valid_loader, test_loader, model_encoder, model_decode
                 action = (action + np.random.normal(0, args.expl_noise, size=args.z_dim)).clip(-args.max_action*np.ones(args.z_dim,), args.max_action*np.ones(args.z_dim,))
                 action = np.float32(action)
             action_t = torch.tensor(action).cuda().unsqueeze(dim=0)
+
         # Perform action
         # env.render()
-        new_obs, _, reward, done, _ = env(input, action_t,disp = True)
+
+        new_obs, _, reward, done, _,_ = env(input, action_t,disp = True)
 
         # new_obs, reward, done, _ = env.step(action)
         done_bool = 0 if episode_timesteps + 1 == args.max_episodes_steps else float(done)
         episode_reward += reward
 
         # Store data in replay buffer
+
+        # ic(type(obs))
+        # ic(np.shape(obs))
+        # ic(type(new_obs))
+        # ic(np.shape(new_obs))
+        # ic(type(action))
+        # ic(np.shape(action))
+        # ic(type(reward))
         replay_buffer.add((obs, new_obs, action, reward, done_bool))
 
         obs = new_obs
@@ -292,8 +353,6 @@ class envs(nn.Module):
     def __init__(self,args,model_encoder,model_decoder,epoch_size):
         super(envs,self).__init__()
 
-        self.nll = NLL()
-        self.mse = MSE(reduction='elementwise_mean')
         self.norm = Norm(dims=args.z_dim)
         self.epoch = 0
         self.epoch_size =epoch_size
@@ -311,83 +370,133 @@ class envs(nn.Module):
         self.iter = 0
     
     def reset(self,epoch_size,figures =3):
-        self.j = 1;
-        self.i = 0;
-        self.figures = figures;
+        self.j = 1
+        self.i = 0
+        self.figures = figures
         self.epoch_size= epoch_size
     
     def agent_input(self,input):
         with torch.no_grad():
-            input = tf.reshape(input,(-1,input.shape[0], input.shape[1], input.shape[2]))
-            encoder_out = self.model_encoder.predict(input).squeeze()
-        return encoder_out
+            input = torch.from_numpy(input)
+            input = torch.reshape(input,(-1,input.shape[2], input.shape[0], input.shape[1]))
+            encoder_out = self.model_encoder(input.cuda())            
+        return encoder_out[-1].cpu().data.numpy().ravel()
     
     def forward(self,input,action,render=False, disp=False):
         with torch.no_grad():
             # Encoder Input
-            input_var = tf.reshape(input[0],(-1,input[0].shape[0], input[0].shape[1], input[0].shape[2]))
-            target_var = tf.reshape(input[1],(-1,input[1].shape[0], input[1].shape[1], input[1].shape[2]))
-        
-            # Encoder  output
-            encoder_out = self.model_encoder.predict(input_var)
-            encoder_out = encoder_out[0]
+            input_rgb = torch.reshape(torch.from_numpy(input[0]),(-1,input[0].shape[2], input[0].shape[0], input[0].shape[1]))
+            target_depth = torch.reshape(torch.from_numpy(input[1]),(-1,input[1].shape[2], input[1].shape[0], input[1].shape[1]))
 
-            # print(f"action shape: {np.shape(action)}")
+            #ic(input_rgb.shape)
+            #ic(target_depth.shape)
 
-            # Generator Input
-            z = Variable(action, requires_grad=True).cuda()
-            z = z.detach().cpu().numpy().squeeze()
-
-            # D Decoder Output
-            # new_z = np.reshape(z, 1, np.shape(z))
-            new_z = np.expand_dims(z, axis=0)
-            # print(f"z shape: {np.shape(z)}")
-            # print(f"new z shape: {np.shape(new_z)}")
-            pred_depth = self.model_decoder.predict(new_z)
+            #ic('exiting')
             
-        # LOSSES ------------------------------------------------------------------
+            # Encoder  output
+            encoder_out = self.model_encoder(input_rgb.cuda())
 
-        # *** TODO variable loss_GFV is only AE loss
+            # RL Generated Action
+            z = Variable(action, requires_grad=True).cuda()
 
-        ic()
+            # Reshape z to dimensions of last element of encoding
+            z = torch.reshape(z, (encoder_out[-1].shape[0],encoder_out[-1].shape[1],encoder_out[-1].shape[2],encoder_out[-1].shape[3]))
 
-        loss_GFV = self.mse(torch.from_numpy(pred_depth), torch.from_numpy(input[1].numpy()))   # saving to pytorch_models_test
-        # loss_GFV = self.mse(torch.from_numpy(pred_depth), torch.from_numpy(input[1]))
-        # loss_GFV = self.mse(torch.from_numpy(pred_depth), torch.from_numpy(pred_depth))
-        # loss_GFV = self.mse(torch.from_numpy(input[1]), torch.from_numpy(input[1]))
+            # Replacing original encoding with RL agent output
+            encoder_out[-1] = z
 
-        # loss_GFV = self.mse(torch.from_numpy(pred_depth), torch.from_numpy(target_var.numpy()))
+            # Decoder Output
+            pred_depth = self.model_decoder(encoder_out)
+            
+            pred_depth = pred_depth.reshape(240,320)
+            pred_depth = pred_depth.detach().cpu().numpy()
 
-        # ic(type(pred_depth))
-        # ic(type(input[1].numpy()))
-        # ic(type(target_var.numpy()))
+            # Upscaling Predicted Depth to 720p
+            pred_depth = cv2.resize(pred_depth, (480,640), interpolation = cv2.INTER_AREA)
+            
+            # Coverting 3 Channel Depth to Single Channel
+            gray_truth = cv2.cvtColor(input[1], cv2.COLOR_RGB2GRAY)
+            # ic(np.shape(gray_truth))
+            gray_truth = gray_truth.transpose()
+            # ic(np.shape(gray_truth))
+            gray_truth = cv2.resize(gray_truth, (480,640), interpolation = cv2.INTER_AREA)
+            # ic(np.shape(gray_truth))
+            
+            # Reshape?
+            gray_truth = gray_truth.reshape(-1, np.shape(gray_truth)[0], np.shape(gray_truth)[1])
+            pred_depth = pred_depth.reshape(-1, np.shape(pred_depth)[0], np.shape(pred_depth)[1])
+            # ic(type(gray_truth))
+            # ic(gray_truth.shape)
+            
+            # Converting Depth Images to Torch Tensors
+            gray_truth = torch.from_numpy(gray_truth).reshape(-1, np.shape(gray_truth)[0], np.shape(gray_truth)[1], np.shape(gray_truth)[2])
+            pred_depth = torch.from_numpy(pred_depth).reshape(-1, np.shape(pred_depth)[0], np.shape(pred_depth)[1], np.shape(pred_depth)[2])
+
+            # ic(type(pred_depth))
+            # ic(pred_depth.shape)
+            # ic(type(gray_truth))
+            # ic(gray_truth.shape)
+            # ic('################## CKPT : Saving Images')
+            # import matplotlib.pyplot as plt
+            # plt.imsave('/home/cse/Documents/group_17/gray_truth.png', gray_truth)
+            # plt.imsave('/home/cse/Documents/group_17/pred_depth.png', pred_depth)
+
+        # Compute the Losses
+
+        # SSIM Loss
+
+        l1_criterion = nn.L1Loss()
+
+        def ssim(img1, img2, val_range, window_size=11, window=None, size_average=True, full=False):
+            ssim = kornia.losses.SSIM(window_size=11,max_val=val_range,reduction='none')
+            return ssim(img1, img2)
+
+        def compute_errors(gt, pred):
+            gt = gt.numpy()
+            pred = pred.numpy()
+            thresh = np.maximum((gt / pred), (pred / gt))
+            δ1 = (thresh < 1.25   ).mean()
+            rmse = np.sqrt(np.mean((gt - pred) ** 2))
+            for i in gt[0][0]:
+                i[i<0.7]=0.7
+            log10_err = np.mean(np.absolute(np.log10(gt) - np.log10(pred)))
+            return rmse, log10_err, δ1
+
+        # ic(pred_depth.shape)
+        # ic(gray_truth.shape)
         
-        # Norm Loss
-        loss_norm = self.norm(torch.from_numpy(z))
+        l_depth = l1_criterion(pred_depth, gray_truth)
+        l_ssim = torch.clamp((1 - ssim(pred_depth, gray_truth, val_range = 1000.0 / 10.0)) * 0.5, 0, 1)
 
-        # States Formulation -------------------------------------------------------
-        state_curr = np.array([loss_GFV.cpu().data.numpy(), loss_norm.cpu().data.numpy()])
-        # state_prev = self.state_prev
+        batch_size = 1
 
-        reward_GFV =- state_curr[0]      # - state_curr[1] + self.state_prev[1]
-        reward_norm =- state_curr[1]     # - state_curr[3] + self.state_prev[3]
+        rmse        = np.zeros(batch_size, np.float32)
+        log10_err   = np.zeros(batch_size, np.float32)
+        δ1          = np.zeros(batch_size, np.float32)
+
+        rmse, log10_err, δ1  = compute_errors(gray_truth, pred_depth) 
+
+
+        loss = (1.0 * l_ssim.mean().item()) + (0.1 * l_depth)
+        # ic(loss)
         
-        # Reward Formulation --------------------------------------------------------
-        reward = (reward_GFV * 10.0 + reward_norm*1/10)      
-        # if(reward < min_reward):
-        #     min_reward = reward
-        # if(reward > max_reward):
-        #     max_reward = reward
+        # State Formulation
+        state_curr = np.array([loss.cpu().data.numpy(),rmse,log10_err,δ1])
+        reward_SSIM =- state_curr[0]
+        reward_rmse =- state_curr[1]
+        reward_log  =- state_curr[2]
+        reward_delta = state_curr[3]
         
-        # reward = reward * 100
-        # self.state_prev = state_curr
+        # Reward Formulation
+        reward = (reward_SSIM*100+reward_rmse*1+reward_log*1+reward_delta*1)
 
         # measured elapsed time
         self.batch_time.update(time.time() - self.end)
         self.end = time.time()    
     
+        
         if disp:
-            print('[{4}][{0}/{1}]\t Reward: {2}\t States: {3}'.format(self.i, self.epoch_size,reward,state_curr,self.iter))
+            print('[{4}][{0}/{1}]\t Reward: {2}\t States: {3}'.format(self.i, self.epoch_size,reward, state_curr,self.iter))
             # print('[{}][{}/{}]\t Reward: {}\t States: {}\t  MinSoFar: {}\t  MaxSoFar: {}'.format(self.iter, self.i, self.epoch_size, reward, state_curr, round(min_reward, 2), round(max_reward, 2)))
             self.i += 1
             if(self.i>=self.epoch_size):
@@ -396,10 +505,11 @@ class envs(nn.Module):
 
         done = True
 
-        # *** Switching it up, with encoder_out, then with z
-        state = z
+        # The New State is the improved encoding
+        #state = encoder_out
+        state = encoder_out[-1].cpu().data.numpy().ravel()
 
-        return state, None, reward, done, self.lossess.avg
+        return state, None, reward, done, self.lossess.avg, pred_depth
 
 if __name__ == '__main__':
     args = get_parameters()
@@ -407,7 +517,7 @@ if __name__ == '__main__':
         "cuda:%d" % (args.gpu_id) if torch.cuda.is_available() else "cpu")  # for selecting device for chamfer loss
     torch.cuda.set_device(args.gpu_id)
     print('Using TITAN XP GPU # :', torch.cuda.current_device())
-    print(args)
+    # print(args)
     main(args)
 
 

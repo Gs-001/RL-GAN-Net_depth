@@ -98,12 +98,18 @@ class ToTensor(object):
 
     def __call__(self, sample):
         image, depth = sample['image'], sample['depth']
+        ic("call")
+        ic(np.array(image).shape)
+        ic(np.array(depth).shape)
+
         image = self.to_tensor(image)
 
         # ORIGINAL : depth = depth.resize((320, 240))
         # HALF OF RGB
+        ic("call")
+        ic(np.array(depth).shape)
         depth = depth.resize((np.shape(image)[2]//2, np.shape(image)[1]//2))
-
+        ic(np.array(depth).shape)
         if self.is_test:
             depth = self.to_tensor(depth).float() / 1000
         else:            

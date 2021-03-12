@@ -90,13 +90,16 @@ for i, sample_batched1  in enumerate (train_loader):
     # The Model outputs an image of the shape (1,1,240,320)
     # The output depth image is now upscaled to get a 480 x 640 image
 
+    # NOTE : reshape to half of RGB (or predicted depth) shape
     img = x.reshape(540,960)
+
+    ## Scaling code, not really required, toBeDeleted
     # scale_percent = 200 # percent of original size
     # width = int(img.shape[1] * scale_percent / 100)
     # height = int(img.shape[0] * scale_percent / 100)
     # dim = (width, height)
 
-    # Resize the image to scaled dimensions
+    # NOTE : resize to desired size, but make sure to maintain ratio
     depth_image = cv2.resize(img, (1280,720), interpolation = cv2.INTER_AREA)
     rgb_image = sample_batched1['image'].detach().cpu().numpy().reshape(3,1080,1920).transpose(1,2,0)
 

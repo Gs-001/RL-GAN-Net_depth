@@ -33,7 +33,7 @@ class Decoder(nn.Module):
 
     
     def forward(self, features):
-        x_block0, x_block1, x_block2, x_block3, x_block4,x_block5,x_block6 = features[2], features[4], features[6], features[9], features[15],features[18],features[19]
+        x_block0, x_block1, x_block2, x_block3, x_block4,x_block5,x_block6 = features[2].cuda(), features[4].cuda(), features[6].cuda(), features[9].cuda(), features[15].cuda(),features[18].cuda(),features[19].cuda()
         x_d0 = self.conv2(x_block6)
         x_d1 = self.up0(x_d0, x_block5)
         x_d2 = self.up1(x_d1, x_block4)
@@ -51,12 +51,12 @@ class Encoder(nn.Module):
         self.original_model = models.mobilenet_v2( pretrained=True )
 
     def forward(self, x):
-        from icecream import ic
         features = [x]
-
         for k, v in self.original_model.features._modules.items():
             features.append( v(features[-1]))
         
+        # ic('encoder_out[-1].shape : ', features[-1].shape)
+
         return features
 
 class Model(nn.Module):

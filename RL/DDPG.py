@@ -65,14 +65,20 @@ class DDPG(object):
 
 
 	def select_action(self, state):
+		# state = state.cpu()
+		from icecream import ic
 		state = torch.FloatTensor(state.reshape(1, -1)).to(device)
+		# ic('DDPG: select_action')
+		# ic('################## state')
+		# ic(type(state))
+		# ic(state.shape)
 		return self.actor(state).cpu().data.numpy().flatten()
 
 
 	def train(self, replay_buffer, iterations, batch_size=64, discount=0.99, tau=0.001):
 
 		for it in range(iterations):
-
+			from icecream import ic
 			# Sample replay buffer 
 			x, y, u, r, d = replay_buffer.sample(batch_size)
 			state = torch.FloatTensor(x).to(device)

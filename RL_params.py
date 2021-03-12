@@ -20,9 +20,6 @@ import argparse
 import datetime
 import torchvision.transforms as transforms
 
-import gpv_transforms
-import pc_transforms
-from visualizer import Visualizer
 from torch.autograd.variable import Variable
 from tensorboardX import SummaryWriter
 from utils import save_checkpoint,AverageMeter,get_n_params
@@ -94,7 +91,7 @@ def get_parameters():
     parser.add_argument('--attempts', default=5, type=int)  # Number of tries to give to RL Agent
     parser.add_argument("--policy_name", default="DDPG")  # Policy name TD3 OurDDPG
     parser.add_argument("--env_name", default="RLGAN")  # Policy name TD3 OurDDPG
-    parser.add_argument("--state_dim", default=128, type=int)  # State Dimesnions #TODO equal to GFV dims
+    parser.add_argument("--state_dim", default=384000, type=int)  # State Dimensions
     parser.add_argument("--max_action", default=10, type=int)  # For Normal Distribution 2.5 is feasible ?
 
     parser.add_argument("--start_timesteps", default=1e4, # 1e4
@@ -114,7 +111,7 @@ def get_parameters():
 
     # Model Hype-Parameter
     parser.add_argument('--image_size', default=32, type=int)  # TODO original value 64
-    parser.add_argument('--z_dim', type=int, default=1)#
+    parser.add_argument('--z_dim', type=int, default=384000)#
     parser.add_argument('--g_conv_dim', type=int, default=64)
     parser.add_argument('--d_conv_dim', type=int, default=64)
 
@@ -129,14 +126,6 @@ def get_parameters():
                         choices=['encoder_pointnet'])
     parser.add_argument('--model_decoder', default='decoder_sonet', help='Chose Your Decoder Model Here',
                         choices=['decoder_sonet'])
-
-    # Visualizer Settings
-    parser.add_argument('--name', type=str, default='train',
-                        help='name of the experiment. It decides where to store samples and models')
-    parser.add_argument('--display_winsize', type=int, default=256, help='display window size')
-    parser.add_argument('--display_id', type=int, default=1001, help='window id of the web display')
-    parser.add_argument('--print_freq', type=int, default=40, help='Print Frequency')
-    parser.add_argument('--port_id', type=int, default=8102, help='Port id for browser')
 
     # Setting for Decoder
     # parser.add_argument('--output_pc_num', type=int, default=1280, help='# of output points')
